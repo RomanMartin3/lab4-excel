@@ -1,0 +1,66 @@
+@use '../../styles/vars' as *
+@use "../../styles/mixins" as *
+
+.carrito-overlay
+  position: fixed
+  top: 0
+  left: 0
+  width: 100vw
+  height: 100vh
+  background-color: rgba(0, 0, 0, 0.5)
+  display: flex
+  justify-content: flex-end
+  z-index: 1000
+
+.carrito-aside
+  background: white
+  width: 400px
+  height: 100%
+  padding: 20px
+  display: flex
+  flex-direction: column
+  justify-content: space-between 
+
+.carrito-item
+  border: 1px solid $color-dos
+  margin: 8px 0
+
+.contenedor-texto
+  display: flex
+  justify-content: space-between
+  padding: 6px
+
+.botones-contenedor
+  display: flex
+  justify-content: flex-end
+  padding: 6px
+  gap: 10px
+
+  .cantidad, .eliminar
+    color: $color-dos
+    border: none
+    background: white
+    font-size: 1.2em
+    cursor: pointer 
+
+.botones-carrito
+  display: flex
+  flex-direction: column
+  gap: 10px
+  margin-top: auto 
+  padding-top: 20px 
+
+  .vaciar-carrito
+    +boton-base
+    background-color: #ff4444 
+    width: 160px
+
+  .cerrar-carrito
+    +boton-base
+    background-color: $color-dos
+    width: 160px
+
+  .guardar-pedido
+    +boton-base
+    background-color: $color-cuatro
+    width: 160px

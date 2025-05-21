@@ -1,0 +1,25 @@
+package com.utn.frm.instrumentos.dto;
+
+import java.math.BigDecimal;
+
+public class PedidoDetalleDTO {
+    private Integer cantidad;
+    private BigDecimal precioUnitario;
+    private Long instrumentoId;
+    private String nombreInstrumento; // Nuevo campo para el nombre del instrumento
+
+    // Getters y Setters
+    public Integer getCantidad() { return cantidad; }
+    public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+
+    public BigDecimal getPrecioUnitario() { return precioUnitario; }
+    public void setPrecioUnitario(BigDecimal precioUnitario) { this.precioUnitario = precioUnitario; }
+
+    public Long getInstrumentoId() {return instrumentoId;}
+
+    public void setInstrumentoId(Long instrumentoId) {this.instrumentoId = instrumentoId;}
+
+    public String getNombreInstrumento() { return nombreInstrumento; } // Getter para el nuevo campo
+    public void setNombreInstrumento(String nombreInstrumento) { this.nombreInstrumento = nombreInstrumento; } // Setter para el nuevo campo
+
+}

@@ -1,0 +1,157 @@
+@use "../../styles/vars" as *
+@use "../../styles/mixins" as *
+
+.custom-modal-overlay
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-color: $bg-transparent-dark
+    display: flex
+    justify-content: center
+    align-items: center
+    z-index: 1000
+
+    .custom-modal
+        background-color: #fff
+        padding: 20px 25px
+        border-radius: 8px
+        width: 70%
+        height: 95%
+        overflow-y: auto
+        box-shadow: $shadow
+        position: relative
+
+        .modal-body
+            height: 100%
+            display: flex
+
+            .modal-imagen
+                width: 60%
+                height: 100%
+                border-right: 2px solid $color-dos
+                display: flex
+                flex-direction: column
+                justify-content: space-between
+
+                .contenedor-imagen
+                    height: 400px
+                    width: 400px
+                    margin: 10px auto
+
+                    img
+                        width: 100%
+                        height: auto
+
+                .modal-descripcion
+                    height: auto
+                    padding: 10px
+
+            .modal-info
+                width: 40%
+                height: 100%
+                padding: 10px 20px
+
+                .modal-vendidos
+                    padding-top: 10px
+                    color: rgb(101 101 101)
+
+                .modal-titulo
+                    color: #333
+                    font-size: 1.5em
+
+                .modal-precio
+                    padding: 30px 0
+                    font-size: 2.5em
+                    font-weight: 300
+
+                .modal-marca,
+                .modal-modelo
+                    margin: 0
+                    font-weight: 500
+
+                .modal-precio-envio
+                    height: 60px
+                    display: flex
+                    justify-content: flex-start
+                    align-items: center
+
+                    .envio-pago
+                        height: 30px
+                        padding: 8px 0
+                        font-size: 1.2em
+                        font-weight: 600
+                        color: #ff8736
+
+                    .envio-gratis
+                        height: 30px
+                        display: flex
+                        color: #39b54a
+                        p
+                            font-size: 1.2em
+                            font-weight: 600
+                            padding: 1px 4px
+
+            .modal-footer
+                padding-top: 70px
+                position: relative
+                display: flex
+                flex-direction: column
+                gap: 10px
+                margin-top: 15px
+
+                .comprar-wrapper
+                    width: 100%
+
+                    .agregar-carrito
+                        +boton-base
+                        width: 100%
+                        height: 40px
+                        margin: 0
+
+                    .botones-cantidad
+                        width: 100%
+                        height: 40px
+                        display: flex
+                        justify-content: center
+                        align-items: center
+                        gap: 8px
+                        transition: all 0.2s ease
+
+                        button
+                            flex: none
+                            width: 40px
+                            height: 100%
+                            color: $color-dos
+                            padding: 0
+                            border: none
+                            background: #f5f5f5
+                            cursor: pointer
+                            border-radius: 3px
+                            transition: background 0.2s ease
+                            display: flex
+                            align-items: center
+                            justify-content: center
+
+                            &:hover
+                                background: #cccccc
+
+                        .boton-eliminar
+                            background: transparent
+                            color: $color-cuatro
+
+                        .cantidad
+                            background: transparent
+                            flex: 1
+                            height: 100%
+                            display: flex
+                            align-items: center
+                            justify-content: center
+                            font-weight: 500
+                            margin: 0 4px
+
+                .cerrar
+                    +boton-base
+                    width: 100%
+                    height: 40px

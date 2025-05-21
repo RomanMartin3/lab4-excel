@@ -1,0 +1,133 @@
+package com.utn.frm.instrumentos.controllers;
+
+import com.utn.frm.instrumentos.dto.LoginRequest;
+import com.utn.frm.instrumentos.dto.RegistroRequest;
+import com.utn.frm.instrumentos.dto.UsuarioResponse;
+import com.utn.frm.instrumentos.entities.Usuario;
+import com.utn.frm.instrumentos.services.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext; // Importación añadida
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.SecurityContextRepository; // Importación añadida
+import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+
+    @Autowired
+    private SecurityContextRepository securityContextRepository;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getNombreUsuario(),
+                            loginRequest.getClave()
+                    )
+            );
+            // Establecer la autenticación en el SecurityContext actual
+            SecurityContext context = SecurityContextHolder.createEmptyContext(); // Crear un contexto vacío primero
+            context.setAuthentication(authentication); // Establecer la autenticación en este nuevo contexto
+            SecurityContextHolder.setContext(context); // Establecer el nuevo contexto en el Holder
+
+            // Invocar la estrategia de sesión (maneja fijación de sesión, etc.)
+            sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
+
+            // Asegurar la creación de la sesión HTTP (esto genera la cookie JSESSIONID)
+            HttpSession httpSession = request.getSession(true);
+            System.out.println("AuthController DEBUG: Sesión creada/obtenida. ID: " + httpSession.getId() + ", Nueva: " + httpSession.isNew());
+
+            // ---> INICIO DE GUARDADO EXPLÍCITO DEL CONTEXTO <---
+            // Guardar el contexto (que ahora contiene la autenticación) explícitamente.
+            // Esto debería persistir el SecurityContext en la HttpSession.
+            System.out.println("AuthController DEBUG: Intentando guardado explícito del contexto para usuario: " + authentication.getName());
+            securityContextRepository.saveContext(context, request, response);
+            System.out.println("AuthController DEBUG: Guardado explícito del contexto completado.");
+            // ---> FIN DE GUARDADO EXPLÍCITO DEL CONTEXTO <---
+
+            Optional<Usuario> usuarioOpt = usuarioService.findByNombreUsuario(loginRequest.getNombreUsuario());
+            if (usuarioOpt.isPresent()) {
+                Usuario usuario = usuarioOpt.get();
+                UsuarioResponse usuarioResponse = new UsuarioResponse(usuario.getId(), usuario.getNombreUsuario(), usuario.getRol());
+                return ResponseEntity.ok(usuarioResponse);
+            } else {
+                Map<String, String> errorBody = new HashMap<>();
+                errorBody.put("message", "Error al recuperar datos del usuario post-autenticación.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+            }
+        } catch (BadCredentialsException e) {
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("message", "Usuario y/o Clave incorrectos, vuelva a intentar.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorBody = new HashMap<>();
+            errorBody.put("message", "Error durante el login: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+        }
+    }
+
+    // ... (método registrarUsuario y getCurrentUser sin cambios) ...
+    @PostMapping("/register")
+    public ResponseEntity<?> registrarUsuario(@RequestBody RegistroRequest registroRequest) {
+        try {
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombreUsuario(registroRequest.getNombreUsuario());
+            nuevoUsuario.setClave(registroRequest.getClave()); // La clave se encriptará en el servicio
+            nuevoUsuario.setRol("VISOR"); // Asignar un rol por defecto o según la lógica de negocio
+
+            Usuario usuarioCreado = usuarioService.crearUsuario(nuevoUsuario);
+            UsuarioResponse usuarioResponse = new UsuarioResponse(usuarioCreado.getId(), usuarioCreado.getNombreUsuario(), usuarioCreado.getRol());
+            return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponse);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace(); // Loguear para diagnóstico
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el usuario: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        // Este log es útil para ver qué llega a /me
+        System.out.println("AuthController DEBUG (/me): Authentication object: " + (authentication != null ? authentication.getName() + " | Authenticated: " + authentication.isAuthenticated() : "null"));
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay usuario autenticado.");
+        }
+        String nombreUsuario = authentication.getName();
+        Optional<Usuario> usuarioOpt = usuarioService.findByNombreUsuario(nombreUsuario);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            UsuarioResponse usuarioResponse = new UsuarioResponse(usuario.getId(), usuario.getNombreUsuario(), usuario.getRol());
+            return ResponseEntity.ok(usuarioResponse);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario autenticado no encontrado en la base de datos.");
+        }
+    }
+}

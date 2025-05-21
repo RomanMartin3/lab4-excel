@@ -1,0 +1,118 @@
+@use '../../styles/vars' as *
+@use "../../styles/mixins" as *
+
+.card-container
+    height: 500px
+    width: 280px
+    display: flex
+    flex-direction: column
+    background-color: #fff
+    box-shadow: $shadow
+    border-radius: 10px
+    margin: 10px auto
+    padding: 30px 20px
+
+    .card-image
+        height: 200px
+        width: auto
+        margin: 0 auto
+
+    .card-info
+        margin: 0 auto
+        color: #000
+
+        .card-titulo
+            font-size: 1.1em
+            font-weight: 100
+
+        .card-precio
+            font-size: .9em
+            font-weight: 600
+
+        .card-precio-envio
+            height: 60px
+            display: flex
+            justify-content: center
+            align-items: center
+
+            .card-envio
+                height: 30px
+                padding: 8px 0
+                font-size: 1.2em
+                font-weight: 600
+                color: #ff8736
+
+            .envio-gratis
+                height: 30px
+                display: flex
+                color: #39b54a
+                p
+                    font-size: 1.2em
+                    font-weight: 600
+                    padding: 1px 4px
+
+        .card-vendidos
+            font-size: .8em
+            font-weight: 100
+
+        .card-buttons-container
+            position: relative
+            display: flex
+            flex-direction: column
+            gap: 10px
+            margin-top: 15px
+
+            .ver-mas
+                +boton-base
+                width: 100%
+                height: 40px
+
+            .comprar-wrapper
+                position: relative
+                height: 40px
+
+                .agregar-carrito
+                    +boton-base
+                    position: absolute
+                    top: 0
+                    left: 0
+                    margin: 0
+
+                .botones-cantidad
+                    position: absolute
+                    top: 0
+                    left: 0
+                    right: 0
+                    display: flex
+                    align-items: center
+                    justify-content: space-between
+                    z-index: 1
+                    gap: 8px
+                    padding: 4px
+                    border-radius: 4px
+                    height: 40px
+                    
+
+                    button
+                        flex: 1
+                        max-width: 40px
+                        color: $color-dos
+                        padding: 8px
+                        border: none
+                        background: transparent
+                        cursor: pointer
+                        border-radius: 3px
+                        transition: background 0.2s ease
+
+                        &:hover
+                            background: #cccccc
+
+                    .boton-eliminar
+                        background: transparent
+                        color: $color-cuatro
+
+                    .cantidad
+                        min-width: 30px
+                        text-align: center
+                        font-weight: 500
+

@@ -1,0 +1,136 @@
+package com.utn.frm.instrumentos; // O el paquete donde la tengas
+
+import com.utn.frm.instrumentos.entities.Categoria;
+import com.utn.frm.instrumentos.entities.Instrumento;
+//import com.utn.frm.instrumentos.entities.TipoRol; // Asegúrate de tener este Enum
+import com.utn.frm.instrumentos.entities.Usuario;
+import com.utn.frm.instrumentos.repositories.CategoriaRepository;
+import com.utn.frm.instrumentos.repositories.InstrumentoRepository;
+import com.utn.frm.instrumentos.services.UsuarioService; // Ya lo tenías
+import jakarta.transaction.Transactional; // Importante para operaciones que modifican datos
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+
+@Component
+public class DataInitializer implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
+
+    private final UsuarioService usuarioService;
+    private final CategoriaRepository categoriaRepository;
+    private final InstrumentoRepository instrumentoRepository;
+
+    @Autowired
+    public DataInitializer(UsuarioService usuarioService,
+                           CategoriaRepository categoriaRepository,
+                           InstrumentoRepository instrumentoRepository) {
+        this.usuarioService = usuarioService;
+        this.categoriaRepository = categoriaRepository;
+        this.instrumentoRepository = instrumentoRepository;
+    }
+
+    @Override
+    @Transactional // Es buena práctica para un método que realiza múltiples operaciones de BD
+    public void run(String... args) throws Exception {
+        log.info("Ejecutando DataInitializer...");
+
+        // --- Carga de Categorías ---
+        if (categoriaRepository.count() == 0) {
+            log.info("No hay categorías en la base de datos. Creando categorías iniciales...");
+            Categoria guitarras = categoriaRepository.save(new Categoria("Guitarras"));
+            Categoria pianos = categoriaRepository.save(new Categoria("Pianos"));
+            Categoria baterias = categoriaRepository.save(new Categoria("Baterías"));
+            // La categoría con ID 4 no está en tu SQL, la ID 5 sí.
+            Categoria teclados = categoriaRepository.save(new Categoria("Teclados"));
+            log.info("Categorías creadas.");
+
+            // --- Carga de Instrumentos (después de crear categorías) ---
+            if (instrumentoRepository.count() == 0) {
+                log.info("No hay instrumentos en la base de datos. Creando instrumentos iniciales...");
+
+                instrumentoRepository.save(new Instrumento(
+                        "Guitarra Acústica Fender", "Fender", "FA-135CE", "nro1.jpg",
+                        new BigDecimal("1500.00"), "G", 50,
+                        "Guitarra acústica de concierto con tapa de abeto y cuerpo de caoba. Ideal para músicos profesionales.",
+                        guitarras // Asocia con la categoría 'Guitarras'
+                ));
+
+                instrumentoRepository.save(new Instrumento(
+                        "Piano Digital Yamaha P-125", "Fender", "FA 135CE", "nro6.jpg", // La marca es Fender en tu SQL, ¿quizás un error en el SQL? Lo mantengo como está en el SQL.
+                        new BigDecimal("350.00"), "300", 10,
+                        "Teclado portátil ideal para principiantes.",
+                        pianos // Asocia con la categoría 'Pianos'
+                ));
+
+                // El instrumento con ID 9 tiene datos similares al 1 pero precio mucho mayor y diferente categoría
+                instrumentoRepository.save(new Instrumento(
+                        "Guitarra Acústica Fender (Premium)", "Fender", "FA-135CE Special", "nro1.jpg", // Diferencio un poco para evitar confusión si ambos son "Guitarra Acústica Fender"
+                        new BigDecimal("1500000.00"), "G", 50,
+                        "Guitarra acústica de concierto con tapa de abeto y cuerpo de caoba. Modelo premium.",
+                        pianos // En tu SQL, este está asociado a la categoría Pianos (ID 2)
+                ));
+
+                instrumentoRepository.save(new Instrumento(
+                        "qweqwe", "qweqwe", "qweqwe", "nro8.jpg",
+                        new BigDecimal("23333.00"), "G", 12,
+                        "sadasdasdasd",
+                        baterias // Asocia con la categoría 'Baterías'
+                ));
+
+                instrumentoRepository.save(new Instrumento(
+                        "QWEQWE", "QWEQWE", "EQWEQWE", "nro3.jpg",
+                        new BigDecimal("6.00"), "G", 2,
+                        "QWEQWEQW",
+                        guitarras // Asocia con la categoría 'Guitarras'
+                ));
+                // No hay instrumentos para la categoría 'Teclados' en tu SQL de ejemplo,
+                // podrías añadir uno si quisieras.
+                // Ejemplo:
+                // instrumentoRepository.save(new Instrumento(
+                //         "Teclado Casio CT-S200", "Casio", "CT-S200", "teclado_casio.jpg",
+                //         new BigDecimal("12000.00"), "G", 5,
+                //         "Teclado portátil ideal para aprendizaje.",
+                //         teclados
+                // ));
+
+                log.info("Instrumentos creados.");
+            } else {
+                log.info("La base de datos ya contiene instrumentos. No se crearán instrumentos iniciales.");
+            }
+
+        } else {
+            log.info("La base de datos ya contiene categorías. No se crearán categorías ni instrumentos iniciales.");
+        }
+
+
+        // --- Carga de Usuarios ---
+        // (Usando el método crearUsuario del UsuarioService que ya encripta la clave)
+        // El método initUsuariosDePrueba en UsuarioService ya hace esto,
+        // pero si prefieres controlarlo aquí, puedes hacerlo así:
+        if (usuarioService.countUsuarios() == 0) {
+            log.info("No hay usuarios en la base de datos. Creando usuarios iniciales...");
+            try {
+                usuarioService.crearUsuario("admin", "admin123", TipoRol.ADMIN);
+                log.info("Usuario Admin creado: nombreUsuario='admin', rol='ADMIN'");
+
+                usuarioService.crearUsuario("operador", "operador123", TipoRol.OPERADOR);
+                log.info("Usuario Operador creado: nombreUsuario='operador', rol='OPERADOR'");
+
+                usuarioService.crearUsuario("visor", "visor123", TipoRol.VISOR);
+                log.info("Usuario Visor creado: nombreUsuario='visor', rol='VISOR'");
+
+            } catch (Exception e) {
+                log.error("Error inesperado al crear usuarios iniciales: " + e.getMessage(), e);
+            }
+        } else {
+            log.info("La base de datos ya contiene usuarios. No se crearán usuarios iniciales.");
+        }
+
+        log.info("DataInitializer finalizado.");
+    }
+}

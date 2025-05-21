@@ -1,0 +1,122 @@
+@use "../../styles/vars" as *
+@use "../../styles/mixins" as *
+
+.filtro-categoria
+  display: flex
+  justify-content: flex-start 
+  align-items: center 
+  margin: 8px auto
+  padding: 0 20px 
+
+  .contenedor-select-categoria
+    display: flex
+    align-items: center
+    gap: 8px
+
+    label
+      color: $color-cinco
+      font-size: 1.2em
+
+.select-form
+  background-color: $color-seis
+  color: $color-cinco
+  padding: 8px
+  font-size: 16px
+  border: 2px solid $color-cinco
+  border-radius: 8px
+  width: auto
+  font-weight: 700
+
+  option
+    background-color: $color-seis
+    color: $color-dos
+
+table
+  width: 100%
+  border-collapse: collapse
+  margin: 2rem auto
+
+  th, td
+    padding: 1rem
+    text-align: left
+
+  th
+    color: white
+    font-weight: 700
+    background-color: $color-cinco
+
+  td
+    color: $color-cinco
+
+  tr:hover
+    background-color: $color-tres
+    color: $color-tres
+
+  .acciones
+    display: flex
+    flex-direction: column
+    gap: 8px
+    justify-content: center
+
+.boton
+  &-crear,
+  &-modificar,
+  &-eliminar,
+  &-limpiar
+    +boton-base 
+
+  &-crear
+    width: 250px
+    height: 60px
+
+  &-modificar
+    width: 100px
+
+  &-eliminar
+    width: 100px
+
+  &-limpiar
+    width: 120px
+    
+
+//// sass normal
+
+// .boton-crear,
+// .boton-modificar,
+// .boton-eliminar
+//   margin: 0 auto
+//   padding: 0.5rem
+//   font-size: 1rem
+//   border: none
+//   border-radius: 8px
+//   font-weight: 700
+//   cursor: pointer
+//   transition: all 0.3s ease
+//   text-align: center
+//   background-color: $color-dos
+//   color: $color-cuatro
+//   &:hover
+//     background-color: $color-dos
+//     color: color-dos
+  
+// .boton-crear
+//   width: 300px
+
+// .boton-modificar,
+// .boton-eliminar
+//   width: 100px
+
+//// uso mixins
+
+// .boton-crear,
+// .boton-modificar,
+// .boton-eliminar
+//   +boton-base
+//   +boton-variant($color-tres, $color-dos)
+  
+// .boton-crear
+//   width: 300px
+
+// .boton-modificar,
+// .boton-eliminar
+//   width: 100px
