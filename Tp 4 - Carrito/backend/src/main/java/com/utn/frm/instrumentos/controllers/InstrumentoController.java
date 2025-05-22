@@ -4,8 +4,12 @@ import com.utn.frm.instrumentos.entities.Categoria;
 import com.utn.frm.instrumentos.entities.Instrumento;
 import com.utn.frm.instrumentos.repositories.CategoriaRepository;
 import com.utn.frm.instrumentos.repositories.InstrumentoRepository;
-import org.springframework.http.HttpStatus; // Necesario para ResponseEntity.status
+import com.utn.frm.instrumentos.services.InstrumentoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize; // Importar
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -24,6 +28,8 @@ public class InstrumentoController {
         this.categoriaRepo = categoria;
     }
 
+    @Autowired
+    private InstrumentoService instrumentoService;
     /**
      * Obtiene todos los instrumentos registrados.
      * Acceso público o para cualquier usuario autenticado según SecurityConfig.
@@ -153,4 +159,21 @@ public class InstrumentoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el instrumento: " + e.getMessage());
         }
     }
+
+    @GetMapping("/generar-pdf/{id}")
+    public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
+        try {
+            byte[] pdfBytes = instrumentoService.generarPdfInstrumento(id);
+
+            HttpHeaders headers = new HttpHeaders(); // Ahora usará la clase correcta
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "instrumento_" + id + ".pdf");
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }
