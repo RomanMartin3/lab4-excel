@@ -24,4 +24,19 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             @Param("fechaFin") ZonedDateTime fechaFin
     );
 
+    // Consulta para el Gráfico de Barras: Pedidos por Mes y Año
+    // Usa FUNCTION('FORMATDATETIME', ...) para agrupar por mes y año directamente en la consulta JPQL
+    @Query(value = "SELECT DATE_FORMAT(p.fecha, '%Y-%m'), COUNT(p.id) " +
+            "FROM pedido p GROUP BY DATE_FORMAT(p.fecha, '%Y-%m') ORDER BY DATE_FORMAT(p.fecha, '%Y-%m')",
+            nativeQuery = true)
+    List<Object[]> contadorPedidosPorMesYAño();
+    
+    // Consulta para el Gráfico de Torta: Cantidad de Instrumentos Vendidos
+    // Suma las cantidades de los detalles de pedido agrupados por instrumento
+    @Query("SELECT pd.instrumento.instrumento, SUM(pd.cantidad) " +
+            "FROM PedidoDetalle pd GROUP BY pd.instrumento.instrumento ORDER BY SUM(pd.cantidad) DESC")
+    List<Object[]> sumaCantidadesPorInstrumento();
+
+
+
 }

@@ -5,6 +5,10 @@ import "./GrillaPedidos.sass";
 import Contenedor from "../Contenedor/Contenedor";
 import { fetchPedidos } from "../../services/api";
 
+// Importa los nuevos componentes de gráficos
+import BarChartPedidos from "../BarChartPedidos/BarChartPedidos";
+import PieChartPedidos from "../PieChartPedidos/PieChartPedidos";
+
 const GrillaPedidos = () => {
   const [pedidos, setPedidos] = useState<PedidoResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,24 +21,41 @@ const GrillaPedidos = () => {
       const url = new URL("http://localhost:8080/api/pedidos/excel-pedidos");
 
       if (fechaDesde) {
-        // Divide la fecha "YYYY-MM-DD" en componentes numéricos
-        const [yearDesde, monthDesde, dayDesde] = fechaDesde.split('-').map(Number);
-        // Crea un objeto Date usando componentes, lo que lo interpreta en la ZONA HORARIA LOCAL del navegador.
-        // Establece la hora al inicio del día (00:00:00.000).
-        const dateDesdeObj = new Date(yearDesde, monthDesde - 1, dayDesde, 0, 0, 0, 0); // monthIndex es 0-11
+        const [yearDesde, monthDesde, dayDesde] = fechaDesde
+          .split("-")
+          .map(Number);
+        const dateDesdeObj = new Date(
+          yearDesde,
+          monthDesde - 1,
+          dayDesde,
+          0,
+          0,
+          0,
+          0
+        );
         url.searchParams.append("fechaDesde", dateDesdeObj.toISOString());
       }
 
       if (fechaHasta) {
-        // Divide la fecha "YYYY-MM-DD" en componentes numéricos
-        const [yearHasta, monthHasta, dayHasta] = fechaHasta.split('-').map(Number);
-        // Crea un objeto Date usando componentes, lo que lo interpreta en la ZONA HORARIA LOCAL del navegador.
-        // Establece la hora al final del día (23:59:59.999).
-        const dateHastaObj = new Date(yearHasta, monthHasta - 1, dayHasta, 23, 59, 59, 999); // monthIndex es 0-11
+        const [yearHasta, monthHasta, dayHasta] = fechaHasta
+          .split("-")
+          .map(Number);
+        const dateHastaObj = new Date(
+          yearHasta,
+          monthHasta - 1,
+          dayHasta,
+          23,
+          59,
+          59,
+          999
+        );
         url.searchParams.append("fechaHasta", dateHastaObj.toISOString());
       }
 
-      console.log("URL con fechas formateadas para el backend:", url.toString());
+      console.log(
+        "URL con fechas formateadas para el backend:",
+        url.toString()
+      );
 
       const response = await fetch(url.toString(), {
         method: "GET",
@@ -52,7 +73,8 @@ const GrillaPedidos = () => {
           );
         }
         throw new Error(
-          errorData.message || `Error ${response.status}: ${response.statusText}`
+          errorData.message ||
+            `Error ${response.status}: ${response.statusText}`
         );
       }
 
@@ -165,6 +187,12 @@ const GrillaPedidos = () => {
           </div>
         )}
       </Contenedor>
+
+      {/* Renderiza los nuevos componentes de gráficos aquí */}
+      <div className="charts-section">
+        <BarChartPedidos />
+        <PieChartPedidos />
+      </div>
     </div>
   );
 };

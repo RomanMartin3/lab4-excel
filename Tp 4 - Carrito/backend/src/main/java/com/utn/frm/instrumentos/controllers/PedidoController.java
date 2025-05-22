@@ -149,6 +149,18 @@ public class PedidoController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
+
+    @GetMapping("/chart/pedidos-by-month")
+    public ResponseEntity<List<Object[]>> getContadorPedidosPorMesYAñoChartData() {
+        return ResponseEntity.ok(pedidoService.getContadorPedidosPorMesYAño());
+    }
+
+    // Nuevo endpoint para los datos del gráfico de torta
+    @GetMapping("/chart/quantities-by-instrument")
+    public ResponseEntity<List<Object[]>> getCantidadesPorInstrumentoChartData() {
+        return ResponseEntity.ok(pedidoService.getCantidadesPorInstrumento());
+    }
 }
 
 

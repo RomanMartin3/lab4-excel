@@ -152,6 +152,19 @@ public class PedidoService {
     }
 
 
+    // Nuevo método de servicio para los datos del gráfico de barras
+    public List<Object[]> getContadorPedidosPorMesYAño() {
+        return pedidoRepository.contadorPedidosPorMesYAño();
+    }
+
+    // Nuevo método de servicio para los datos del gráfico de torta
+    public List<Object[]> getCantidadesPorInstrumento() {
+        return pedidoRepository.sumaCantidadesPorInstrumento();
+    }
 
 
 }
+
+
+
+
